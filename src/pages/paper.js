@@ -9,16 +9,19 @@ import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { db, storage } from 'firebaseConfig/firebase';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { v4 as uuidv4, validate } from 'uuid';
 import Layout from 'components/Layout';
 import { toast } from 'react-toastify';
 import { withProtected } from 'hooks/route';
+import { CirclesWithBar } from 'react-loader-spinner';
 
 
 
 
  function Paper() {
+
+  const[visible,setVisible] =useState(false)
 
   const colRef = collection(db, 'pdf-data')
   const colRefTwo = collection(db, 'grade-data')
@@ -92,11 +95,14 @@ const {checkCondition,condition} =validateData(uploadData)
 
 
   const addPdfData = async (url, name) => {
-    await addDoc(colRef, { ...uploadData, pdfLink: url, name }).then(() => {
+    setVisible(true)
+    await addDoc(colRef, { ...uploadData, pdfLink: url, name,createdAt: serverTimestamp() }).then(() => {
       toast.success(`success`,{theme:'colored'})
     })
+    setVisible(false)
   }
   const addGradeData = async () => {
+    setVisible(true)
     const dataObj = { subject: '', year: [], grade: '' }
     const exitData = await getaDataByGradeAndSubject(uploadData.grade, uploadData.subject)
 
@@ -112,14 +118,14 @@ const {checkCondition,condition} =validateData(uploadData)
 
     } else {
 
-      await addDoc(colRefTwo, { ...dataObj, subject: uploadData.subject, year: [uploadData.year], grade: uploadData.grade }).then(() => {
-        console.log('sucess two');
+      await addDoc(colRefTwo, { ...dataObj, subject: uploadData.subject, year: [uploadData.year], grade: uploadData.grade,createdAt: serverTimestamp() }).then(() => {
+        
       })
     }
 
 
 
-
+    setVisible(false)
 
 
   }
@@ -138,6 +144,7 @@ if (e.target.name==='year') {
 
 
   const getaDataByGradeAndSubject = async (grade, subject) => {
+    
     const data = []
     try {
       // const q = query(colRefTwo, where("year", 'array-contains-any', [year]), where("grade", "==", grade), where("subject", "==", subject))
@@ -154,7 +161,7 @@ if (e.target.name==='year') {
       console.log(error);
     }
 
-
+   
   }
 
 
@@ -228,7 +235,18 @@ if (e.target.name==='year') {
             <input type="text" name="school" placeholder="school or university" className={styles.input_text} onChange={handleChange} value={uploadData.school} />
 
           </div>
-
+          <CirclesWithBar
+  height="100"
+  width="100"
+  color="#4fa94d"
+  wrapperStyle={{}}
+  wrapperClass=""
+  visible={visible}
+  outerCircleColor=""
+  innerCircleColor=""
+  barColor=""
+  ariaLabel='circles-with-bar-loading'
+/>
           <div className={styles.button}>
             <button onClick={uploadFiles} className='text-center'>
               UPLOAD

@@ -16,12 +16,15 @@ import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { withProtected } from 'hooks/route';
+import { MagnifyingGlass } from 'react-loader-spinner';
 
 
 
 
  function Update() {
 
+    const[visible,setVisible] =useState(false)
+    const[searchVisible,setSearchVisible]=useState(false)
     const router =useRouter()
     const colRef = collection(db, 'pdf-data')
     const colRefTwo = collection(db, 'grade-data')
@@ -119,9 +122,11 @@ import { withProtected } from 'hooks/route';
 
 
     const addPdfData = async (url, name) => {
+        setVisible(true)
         await addDoc(colRef, { ...uploadData, pdfLink: url, name }).then(() => {
             toast.success(`success`, { theme: 'colored' })
         })
+        setVisible(false)
     }
     const addGradeData = async () => {
         const dataObj = { subject: '', year: [], grade: '' }
@@ -183,6 +188,8 @@ import { withProtected } from 'hooks/route';
 
 
     const getaEditData = async (param) => {
+
+        setSearchVisible(true)
        
         const data = []
         try {
@@ -200,7 +207,7 @@ import { withProtected } from 'hooks/route';
             console.log(error);
         }
 
-
+setSearchVisible(false)
     }
 
     const handleSearch = () => {
@@ -285,7 +292,16 @@ import { withProtected } from 'hooks/route';
                             </div>
                         </div>
 
-
+                        <MagnifyingGlass
+  visible={searchVisible}
+  height="80"
+  width="80"
+  ariaLabel="MagnifyingGlass-loading"
+  wrapperStyle={{}}
+  wrapperClass="MagnifyingGlass-wrapper"
+  glassColor = '#c0efff'
+  color = '#e15b64'
+/>
 
                         < div className="text-xl md:my-1  ">
                             <div className={styles.button}>

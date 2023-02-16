@@ -16,12 +16,15 @@ import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { withProtected } from 'hooks/route';
+import { MagnifyingGlass } from 'react-loader-spinner';
 
 
 
 
  function UpdateMenu() {
 
+    const[visible,setVisible] =useState(false)
+    const[searchVisible,setSearchVisible]=useState(false)
     const router =useRouter()
     const colRef = collection(db, 'menu-data')
     const colRefTwo = collection(db, 'grade-data')
@@ -118,11 +121,14 @@ import { withProtected } from 'hooks/route';
 
 
     const addPdfData = async (url, name) => {
+        setVisible(true)
         await addDoc(colRef, { ...uploadData, pdfLink: url, name }).then(() => {
             toast.success(`success`, { theme: 'colored' })
         })
+        setVisible(false)
     }
     const addGradeData = async () => {
+        setVisible(true)
         const dataObj = { subject: '', year: [], grade: '' }
         const exitData = await getaDataByGradeAndSubject(uploadData.grade, uploadData.subject)
 
@@ -145,7 +151,7 @@ import { withProtected } from 'hooks/route';
 
 
 
-
+        setVisible(false)
 
 
     }
@@ -161,6 +167,7 @@ import { withProtected } from 'hooks/route';
 
 
     const getaDataByGradeAndSubject = async (grade, subject) => {
+        setSearchVisible(true)
         const data = []
         try {
             // const q = query(colRefTwo, where("year", 'array-contains-any', [year]), where("grade", "==", grade), where("subject", "==", subject))
@@ -176,13 +183,13 @@ import { withProtected } from 'hooks/route';
         } catch (error) {
             console.log(error);
         }
-
+        setSearchVisible(false)
 
     }
 
 
     const getaEditData = async (param) => {
-       
+        setSearchVisible(true)
         const data = []
         try {
             // const q = query(colRefTwo, where("year", 'array-contains-any', [year]), where("grade", "==", grade), where("subject", "==", subject))
@@ -199,7 +206,7 @@ import { withProtected } from 'hooks/route';
             console.log(error);
         }
 
-
+        setSearchVisible(false)
     }
 
     const handleSearch = () => {
@@ -264,7 +271,16 @@ import { withProtected } from 'hooks/route';
                             </div>
                         </div>
 
-
+                        <MagnifyingGlass
+  visible={searchVisible}
+  height="80"
+  width="80"
+  ariaLabel="MagnifyingGlass-loading"
+  wrapperStyle={{}}
+  wrapperClass="MagnifyingGlass-wrapper"
+  glassColor = '#c0efff'
+  color = '#e15b64'
+/>
 
                         < div className="text-xl md:my-1  ">
                             <div className={styles.button}>

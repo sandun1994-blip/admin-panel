@@ -9,17 +9,17 @@ import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { db, storage } from 'firebaseConfig/firebase';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { v4 as uuidv4, validate } from 'uuid';
 import Layout from 'components/Layout';
 import { toast } from 'react-toastify';
 import { withProtected } from 'hooks/route';
-
+import {  CirclesWithBar } from 'react-loader-spinner'
 
 
 
  function Menu() {
-
+const[visible,setVisible] =useState(false)
   const colRef = collection(db, 'menu-data')
   const colRefTwo = collection(db, 'grade-data')
   const [file, setFile] = useState(null)
@@ -94,9 +94,12 @@ const {checkCondition,condition} =validateData(uploadData)
 
 
   const addPdfData = async (url, name) => {
-    await addDoc(colRef, { ...uploadData, menuLink: url, name }).then(() => {
+    setVisible(true)
+    await addDoc(colRef, { ...uploadData, menuLink: url, name,createdAt: serverTimestamp() }).then(() => {
       toast.success(`success`,{theme:'colored'})
     })
+
+    setVisible(false)
   }
   
 
@@ -146,7 +149,7 @@ const removeItemHandler =(tag)=>{
           </h1>
 
         </div>
-
+      
         <div className="flex flex-col gap-5" >
           <div className={styles.input_group}>
             <input type="text" name="grade" placeholder="Grade" className={styles.input_text} onChange={handleChange} value={uploadData.grade} />
@@ -192,7 +195,18 @@ const removeItemHandler =(tag)=>{
 
           </div>
          
-
+          <CirclesWithBar
+  height="100"
+  width="100"
+  color="#4fa94d"
+  wrapperStyle={{}}
+  wrapperClass=""
+  visible={visible}
+  outerCircleColor=""
+  innerCircleColor=""
+  barColor=""
+  ariaLabel='circles-with-bar-loading'
+/>
           <div className={styles.button}>
             <button onClick={uploadFiles} className='text-center'>
               UPLOAD

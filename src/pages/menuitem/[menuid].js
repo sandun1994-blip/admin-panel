@@ -14,6 +14,7 @@ import { v4 as uuidv4, validate } from 'uuid';
 import Layout from 'components/Layout';
 import { toast } from 'react-toastify';
 import { withProtected } from 'hooks/route'; 
+import { CirclesWithBar } from 'react-loader-spinner';
 
 
 
@@ -22,7 +23,7 @@ import { withProtected } from 'hooks/route';
  function MenuItemId(props) {
 
 
-
+    const[visible,setVisible] =useState(false)
 
     const { menuid } = props.query
 
@@ -130,7 +131,7 @@ import { withProtected } from 'hooks/route';
     }
 
     const editDataHandle = async () => {
-
+        setVisible(true)
         await setDoc(doc(db, "menu-data", menuid), {
             ...editData
         }).then(res => {
@@ -138,11 +139,12 @@ import { withProtected } from 'hooks/route';
         }).catch(err => {
             toast.error(`unsuccess`, { theme: 'colored' })
         })
+        setVisible(false)
     }
 
 
     const addMenuData = async (url, name) => {
-
+        setVisible(true)
         await setDoc(doc(db, "menu-data", editid), {
             ...editData, menuLink: url, name
         }).then(res => {
@@ -150,6 +152,7 @@ import { withProtected } from 'hooks/route';
         }).catch(err => {
             toast.error(`unsuccess`, { theme: 'colored' })
         })
+        setVisible(false)
     }
 
 
@@ -261,7 +264,18 @@ import { withProtected } from 'hooks/route';
                         <input type="file" name="pdf" placeholder="select file" className={styles.input_text} onChange={(e) => setFile(e.target.files[0])} />
 
                     </div>
-
+                    <CirclesWithBar
+  height="100"
+  width="100"
+  color="#4fa94d"
+  wrapperStyle={{}}
+  wrapperClass=""
+  visible={visible}
+  outerCircleColor=""
+  innerCircleColor=""
+  barColor=""
+  ariaLabel='circles-with-bar-loading'
+/>
 
                     <div className={styles.button}>
                         <button onClick={uploadFiles} className='text-center'>

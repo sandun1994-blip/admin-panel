@@ -14,15 +14,16 @@ import { v4 as uuidv4, validate } from 'uuid';
 import Layout from 'components/Layout';
 import { toast } from 'react-toastify';
 import { withProtected } from 'hooks/route';
+import { CirclesWithBar } from 'react-loader-spinner';
 
 
 
 
 
- function   PaperId(props) {
+function PaperId(props) {
 
 
-
+    const [visible, setVisible] = useState(false)
 
     const { editid } = props.query
 
@@ -63,24 +64,25 @@ import { withProtected } from 'hooks/route';
     }
 
     const uploadFiles = () => {
+        setVisible(true)
         const { checkCondition, condition } = validateData(editData)
         if (checkCondition) {
-            
+
 
 
             if (!file) {
 
                 editDataHandle()
-                
+
             } else {
 
-     deleteFile()
+                deleteFile()
 
 
-                
+
             }
 
-           
+
         } else {
 
             if (!checkCondition) {
@@ -89,67 +91,67 @@ import { withProtected } from 'hooks/route';
                 toast.error(`choose a file`, { theme: 'colored' })
             }
         }
-
+        setVisible(false)
     }
 
-    const deleteFile=async()=>{
-
+    const deleteFile = async () => {
+        setVisible(true)
         const desertRef = ref(storage, editData.name);
 
-// Delete the file
-deleteObject(desertRef).then(() => {
+        // Delete the file
+        deleteObject(desertRef).then(() => {
 
-    const path = `/pdf/${editData.grade}/${editData.subject}/${editData.semester}/${uuidv4()}`
-    const storageRef = ref(storage, path)
+            const path = `/pdf/${editData.grade}/${editData.subject}/${editData.semester}/${uuidv4()}`
+            const storageRef = ref(storage, path)
 
-    const uploadTask = uploadBytesResumable(storageRef, file)
+            const uploadTask = uploadBytesResumable(storageRef, file)
 
-    uploadTask.on('state_changed', (snapshot) => {
+            uploadTask.on('state_changed', (snapshot) => {
 
-        const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-        setProgress(prog)
-    }, (err) => console.log(err), () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(
-            url => {
+                const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+                setProgress(prog)
+            }, (err) => console.log(err), () => {
+                getDownloadURL(uploadTask.snapshot.ref).then(
+                    url => {
 
-                addGradeData()
-                addPdfData(url, path)
-
-
-            }
-        )
-    })
+                        addGradeData()
+                        addPdfData(url, path)
 
 
-  
-}).catch((error) => {
-  // Uh-oh, an error occurred!
-});
+                    }
+                )
+            })
 
 
+
+        }).catch((error) => {
+            // Uh-oh, an error occurred!
+        });
+
+        setVisible(false)
     }
 
-const editDataHandle=async()=>{
-    addGradeData()
-    await setDoc(doc(db, "pdf-data", editid), {
-        ...editData
-      }).then(res=>{
-        toast.success(`success`, { theme: 'colored' })
-      }).catch(err=>{
-        toast.error(`unsuccess`, { theme: 'colored' })
-      })
-}
+    const editDataHandle = async () => {
+        addGradeData()
+        await setDoc(doc(db, "pdf-data", editid), {
+            ...editData
+        }).then(res => {
+            toast.success(`success`, { theme: 'colored' })
+        }).catch(err => {
+            toast.error(`unsuccess`, { theme: 'colored' })
+        })
+    }
 
 
     const addPdfData = async (url, name) => {
 
         await setDoc(doc(db, "pdf-data", editid), {
-            ...editData,pdfLink: url, name
-          }).then(res=>{
+            ...editData, pdfLink: url, name
+        }).then(res => {
             toast.success(`success`, { theme: 'colored' })
-          }).catch(err=>{
+        }).catch(err => {
             toast.error(`unsuccess`, { theme: 'colored' })
-          })
+        })
     }
     const addGradeData = async () => {
         const dataObj = { subject: '', year: [], grade: '' }
@@ -192,7 +194,7 @@ const editDataHandle=async()=>{
     }
 
 
-    const getaDataByGradeAndSubject =  async (grade, subject) => {
+    const getaDataByGradeAndSubject = async (grade, subject) => {
         const data = []
         try {
             // const q = query(colRefTwo, where("year", 'array-contains-any', [year]), where("grade", "==", grade), where("subject", "==", subject))
@@ -213,7 +215,7 @@ const editDataHandle=async()=>{
     }
 
 
- 
+
 
     const getaDataById = async () => {
 
@@ -303,7 +305,18 @@ const editDataHandle=async()=>{
                         <input type="text" name="school" placeholder="school or university" className={styles.input_text} onChange={handleChange} value={editData.school} />
 
                     </div>
-
+                    <CirclesWithBar
+                        height="100"
+                        width="100"
+                        color="#4fa94d"
+                        wrapperStyle={{}}
+                        wrapperClass=""
+                        visible={visible}
+                        outerCircleColor=""
+                        innerCircleColor=""
+                        barColor=""
+                        ariaLabel='circles-with-bar-loading'
+                    />
                     <div className={styles.button}>
                         <button onClick={uploadFiles} className='text-center'>
                             EDIT
